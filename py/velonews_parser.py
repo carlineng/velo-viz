@@ -21,7 +21,7 @@ def parse_html(input_html):
 
         for result in parsed_results:
             if result['place'] > 1:
-
+                pass
 
 def parse_result_row(result_row):
     first_space = result_row.find(' ')
@@ -46,7 +46,8 @@ def parse_first(row_tail):
             , 'last_name': name[1]
             , 'team': team
             , 'place': 1
-            , 'time': time}
+            , 'time': time
+            , 'plus_time': 0 }
 
 def parse_dnf(row_tail):
     fields = [x.strip() for x in row_tail.split(',')]
@@ -56,7 +57,8 @@ def parse_dnf(row_tail):
             , 'last_name': name[1]
             , 'team': team
             , 'place': -1
-            , 'time': None}
+            , 'time': None
+            , 'plus_time': None }
 
 def parse_other(place_str, row_tail):
     place = int(place_str[:-1])
@@ -71,7 +73,8 @@ def parse_other(place_str, row_tail):
             , 'last_name': name[1]
             , 'team': team
             , 'place': place
-            , 'time': time}
+            , 'time': None
+            , 'plus_time': time}
 
 def parse_name(name_str):
     first_name_words = []
@@ -87,6 +90,35 @@ def parse_name(name_str):
     first_name = ' '.join(first_name_words)
     last_name = ' '.join(last_name_words)
     return (first_name, last_name)
+
+def parse_time(time_str):
+    time_components = time_str.split(':')
+    seconds_str = time_components.pop()
+
+    minutes_str = '0'
+    result_minutes = 0
+
+    hours_str = '0'
+    result_hours = 0
+
+    if len(time_components) > 0:
+        minutes_str = time_components.pop()
+
+    if len(time_components) > 0:
+        hours_str = time_components.pop()
+
+    result_seconds = int(seconds_str)
+    if minutes_str != '':
+        result_minutes = int(minutes_str)
+    if hours_str != '':
+        result_hours = int(hours_str)
+
+    parsed_time = timedelta(hours = result_hours, minutes = result_minutes,
+                            seconds = result_seconds)
+
+    return parsed_time
+    
+
 
 if __name__ == "__main__":
     testfile = 'test_results.html'
