@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 
 from bs4 import BeautifulSoup
+import requests
 import sys
 from datetime import timedelta
 
 def parse_html(input_html):
     soup = BeautifulSoup(input_html)
+
+    title = soup.title.contents[0]
+    title_words = title.split(' ')
+
+    year = title_words[1]
+    stage = title_words[6]
+
     results_list_ul = soup.find_all("ul", attrs={"class":"results_list"})
     if len(results_list_ul) != 1:
         print "Error: results_list != 1, quitting"
@@ -23,10 +31,16 @@ def parse_html(input_html):
             if result['place'] > 1:
                 result['time'] = winning_time + result['plus_time']
 
+        result_str = []
         for result in parsed_results:
-            print str(result['place']) + ' ' + result['first_name']  + ' ' +\
-            result['last_name'] + ' ' + str(result['time']) + ' ' +\
-            str(result['plus_time'])
+            result_str.append(year + '\t' + stage + '\t' + str(result['place']) + '\t' +\
+            result['first_name'] + '\t' +\
+            result['last_name'] + '\t' +\
+            str(result['team']) + '\t' +\
+            str(result['time']) + '\t' + str(result['plus_time']))
+
+        for result in result_str:
+            print result.encode('utf-8')
 
 def parse_result_row(result_row):
     first_space = result_row.find(' ')
@@ -126,6 +140,14 @@ def parse_time(time_str):
 
 
 if __name__ == "__main__":
-    testfile = 'test_results.html'
-    input_html = open(testfile, 'rb')
-    parse_html(input_html)
+    if len(sys.argv) != 2:
+        print "Usage: " + sys.argv[0] + " <URL>"
+    else:
+        url = sys.argv[1]
+        r = requests.get(url)
+        if r.status_code == 200:
+            html_text = r.text
+            parse_html(html_text)
+        else:
+            print "ERROR: request returned non-200 status code"
+
