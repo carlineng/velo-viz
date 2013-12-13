@@ -21,7 +21,12 @@ def parse_html(input_html):
 
         for result in parsed_results:
             if result['place'] > 1:
-                pass
+                result['time'] = winning_time + result['plus_time']
+
+        for result in parsed_results:
+            print str(result['place']) + ' ' + result['first_name']  + ' ' +\
+            result['last_name'] + ' ' + str(result['time']) + ' ' +\
+            str(result['plus_time'])
 
 def parse_result_row(result_row):
     first_space = result_row.find(' ')
@@ -46,8 +51,8 @@ def parse_first(row_tail):
             , 'last_name': name[1]
             , 'team': team
             , 'place': 1
-            , 'time': time
-            , 'plus_time': 0 }
+            , 'time': parse_time(time)
+            , 'plus_time': parse_time('0') }
 
 def parse_dnf(row_tail):
     fields = [x.strip() for x in row_tail.split(',')]
@@ -74,7 +79,7 @@ def parse_other(place_str, row_tail):
             , 'team': team
             , 'place': place
             , 'time': None
-            , 'plus_time': time}
+            , 'plus_time': parse_time(time)}
 
 def parse_name(name_str):
     first_name_words = []
